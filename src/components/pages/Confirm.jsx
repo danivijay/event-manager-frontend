@@ -44,6 +44,7 @@ const RegistrationId = styled.h3`
 const Confirm = ({ previewData, submitData }) => {
   const [registrationId, setregistrationId] = useState(null);
   const [isNotRedirect, setisNotRedirect] = useState(true);
+  const [noOfTickets, setnoOfTickets] = useState(null);
   const history = useHistory();
   const { id: eventId } = useParams();
 
@@ -62,12 +63,17 @@ const Confirm = ({ previewData, submitData }) => {
       const data = await submitData(previewData);
       // setisNotRedirect(true);
       setregistrationId(data?.id);
+      setnoOfTickets(data?.number_of_tickets);
     } catch (e) {
       console.log(e);
       toast.error("Unable to register!");
     }
   };
-  console.log({ isNotRedirect });
+
+  const copyToClipBoard = () => {
+    navigator.clipboard.writeText(registrationId);
+    toast.info("Registration ID copied");
+  };
   return (
     <Wrapper>
       {!registrationId ? (
@@ -113,8 +119,17 @@ const Confirm = ({ previewData, submitData }) => {
         </Fragment>
       ) : (
         <div>
-          <RegistrationIdLabel>Registration Id:</RegistrationIdLabel>
-          <RegistrationId>{registrationId}</RegistrationId>
+          <RegistrationIdLabel>
+            {noOfTickets && (
+              <span>
+                {noOfTickets} ticket{noOfTickets > 1 && "s"} registered,
+              </span>
+            )}{" "}
+            Registration ID:
+          </RegistrationIdLabel>
+          <RegistrationId onClick={() => copyToClipBoard()}>
+            {registrationId}
+          </RegistrationId>
         </div>
       )}
       <ToastContainer />

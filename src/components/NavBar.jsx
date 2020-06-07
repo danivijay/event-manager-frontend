@@ -42,7 +42,7 @@ const NavBar = () => {
               to="/"
               style={{ color: "inherit", textDecoration: "none" }}
             >
-              EventMan
+              Event Manager
             </NavLink>
           </Title>
         </TitleBlock>

@@ -41,14 +41,12 @@ const Form = ({ events, formData, addToPreview }) => {
   const history = useHistory();
 
   useEffect(() => {
-    console.log(event);
     if (!eventId || !event) {
       history.push("/");
     }
   }, [event, eventId, history]);
 
   const onSubmit = (data) => {
-    console.log(data);
     addToPreview(data);
     history.push(`/event/${eventId}/confirm`);
   };
@@ -73,6 +71,7 @@ const Form = ({ events, formData, addToPreview }) => {
       if (data?.data?.success) {
         const urlPath = data?.data?.url;
         setfileUrl(`${fileEngineURL}${urlPath}`);
+        toast.success("ID Card uploaded!");
       }
     } catch (e) {
       console.log(e);

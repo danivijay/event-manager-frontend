@@ -13,6 +13,7 @@ export default styled.input`
   margin-left: 4.5%;
   margin-right: 4.5%;
   width: 96.3%;
+  cursor: pointer;
   &:disabled {
     opacity: 0.5;
   }

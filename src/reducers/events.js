@@ -6,14 +6,12 @@ const events = [
   {
     name: "Stack Hackathon",
     id: "123",
-    desc:
-      "It’s true that being a specialist in one’s field and gaining mastery of a particular aspect of technology has distinct advantages, but as technology rapidly expands and evolves, industries are constantly changing. With this change comes the need for skills branching out to multiple technologies and the ability to build end to end products to potentially transform the way people live around the world!",
+    desc: "This is a sample event created just for testing purposes.",
   },
   {
     name: "Sample Conference",
     id: "124",
-    desc:
-      "We are looking for prototypes that are innovative, technologically advanced and unique. Most importantly, we are looking for applications that help fuel innovation, industry growth and economy. Build a web applications/ products that help everyday task management efficient and event registration smooth and hassle-free. You can make a submission for both the themes or either of the theme mentioned below.",
+    desc: "This is another sample event",
   },
 ];
 
