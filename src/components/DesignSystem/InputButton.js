@@ -12,6 +12,7 @@ export default styled.input`
   margin-top: 5px;
   background: rgb(0, 137, 254);
   font-weight: bold;
+  cursor: pointer;
   background: linear-gradient(
     90deg,
     rgba(0, 137, 254, 1) 0%,

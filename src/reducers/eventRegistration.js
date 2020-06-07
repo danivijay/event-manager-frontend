@@ -45,6 +45,7 @@ export const addEventRegistration = (payload) => (dispatch) => {
     return {
       success: true,
       id: data?.data?.data?.id,
+      number_of_tickets: data?.data?.data?.number_of_tickets,
     };
   });
 };

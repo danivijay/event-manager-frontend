@@ -43,6 +43,7 @@ export default styled.button`
   color: white;
   min-width: 35px;
   font-weight: bold;
+  cursor: pointer;
   ${(props) => !props.type && typeDefault}
   ${(props) => props.type === "success" && typeSuccess}
   ${(props) => props.type === "danger" && typeDanger}
