@@ -42,6 +42,10 @@ export const addEventRegistration = (payload) => (dispatch) => {
         type: EVENT_REGISTER_DATA,
       });
     }
+    return {
+      success: true,
+      id: data?.data?.data?.id,
+    };
   });
 };
 
