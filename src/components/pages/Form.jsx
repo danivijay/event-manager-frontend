@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useParams, useHistory } from "react-router-dom";
 import axios from "axios";
@@ -6,20 +6,51 @@ import { v4 as uuidv4 } from "uuid";
 import { fileEngineURL } from "../../constants/generalConstants";
 import { connect } from "react-redux";
 import { addEventRegistrationPreview } from "../../reducers/eventRegistration";
+import styled from "styled-components";
+import Label from "../DesignSystem/Label";
+import Input from "../DesignSystem/Input";
+import SelectBox from "../DesignSystem/SelectBox";
+import InputButton from "../DesignSystem/InputButton";
+import FileButton from "../DesignSystem/FileButton";
+import ProgressBar from "../DesignSystem/ProgressBar";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const Form = ({ formData, addToPreview }) => {
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
+const ErrorBox = styled.span`
+  margin: 0;
+  font-size: 0.7rem;
+  margin-bottom: 15px;
+  color: red;
+`;
+
+const Form = ({ events, formData, addToPreview }) => {
   const { register, handleSubmit, watch, errors } = useForm({
     defaultValues: formData,
   });
-  const [loading, setloading] = useState(false);
+  const [loading, setloading] = useState(0);
   const [fileUrl, setfileUrl] = useState("");
 
   const { id: eventId } = useParams();
+  const event = events.find((e) => e.id === eventId);
   const history = useHistory();
+
+  useEffect(() => {
+    console.log(event);
+    if (!eventId || !event) {
+      history.push("/");
+    }
+  }, [event, eventId, history]);
+
   const onSubmit = (data) => {
     console.log(data);
     addToPreview(data);
-    history.push(`/event/${eventId}/preview`);
+    history.push(`/event/${eventId}/confirm`);
   };
 
   const uniqId = uuidv4();
@@ -33,6 +64,8 @@ const Form = ({ formData, addToPreview }) => {
     setloading(true);
     try {
       const data = await axios.post(`${fileEngineURL}/upload`, formData, {
+        onUploadProgress: (progressEvent) =>
+          setloading((progressEvent.loaded / progressEvent.total) * 100),
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -41,81 +74,89 @@ const Form = ({ formData, addToPreview }) => {
         const urlPath = data?.data?.url;
         setfileUrl(`${fileEngineURL}${urlPath}`);
       }
-      setloading(false);
     } catch (e) {
       console.log(e);
-      setloading(false);
+      setloading(0);
+      toast.error("Unable to upload file!");
     }
   };
 
   const registration_type = watch("registration_type");
   return (
-    <div>
-      <h2>{eventId}</h2>
-      <form className="App" onSubmit={handleSubmit(onSubmit)}>
-        <label>First Name</label>
-        <input
-          name="full_name"
-          defaultValue=""
-          ref={register({ required: true })}
-        />
-        {errors.full_name && <span>Fullname is required</span>}
-        <label>Mobile Number</label>
-        <input name="mobile" ref={register({ required: true })} />
-        {errors.mobile && <span>Mobile number is required</span>}
-        <label>Email Address</label>
-        <input
-          name="email"
-          ref={register({
-            required: "Required",
-            pattern: {
-              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-              message: "invalid email address",
-            },
-          })}
-        />
-        {errors.email && <span>Email is required</span>}
-        <label>Registration Type</label>
-        <select name="registration_type" ref={register({ required: true })}>
-          <option value="">Select</option>
-          <option value="Self">Self</option>
-          <option value="Group">Group</option>
-          <option value="Corporate">Corporate</option>
-          <option value="Others">Others</option>
-        </select>
-        {errors.registration_type && <span>Registration Type is required</span>}
+    <Container>
+      <h2>{event.name}</h2>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Container>
+          <Label>First Name *</Label>
+          <Input name="full_name" ref={register({ required: true })} />
+          {errors.full_name && <ErrorBox>Fullname is required</ErrorBox>}
+          <Label>Mobile Number *</Label>
+          <Input name="mobile" ref={register({ required: true })} />
+          {errors.mobile && <ErrorBox>Mobile number is required</ErrorBox>}
+          <Label>Email Address *</Label>
+          <Input
+            name="email"
+            ref={register({
+              required: "Required",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                message: "invalid email address",
+              },
+            })}
+          />
+          {errors.email && <ErrorBox>Email is required</ErrorBox>}
+          <Label>Registration Type *</Label>
+          <SelectBox
+            name="registration_type"
+            ref={register({ required: true })}
+          >
+            <option value="">Select</option>
+            <option value="Self">Self</option>
+            <option value="Group">Group</option>
+            <option value="Corporate">Corporate</option>
+            <option value="Others">Others</option>
+          </SelectBox>
+          {errors.registration_type && (
+            <ErrorBox>Registration Type is required</ErrorBox>
+          )}
 
-        {registration_type !== "" && registration_type !== "Self" && (
-          <Fragment>
-            <label>Number of Tickets</label>
-            <input
-              name="number_of_tickets"
-              ref={register({ required: true })}
-            />
-            {errors.number_of_tickets && (
-              <span>Number of Tickets are required</span>
-            )}
-          </Fragment>
-        )}
-        <label>Upload ID Card</label>
-        <input
-          type="file"
-          id="id_card"
-          name="id_card"
-          accept="image/*"
-          required
-          onChange={(e) => handleUploadFile(e)}
-        ></input>
-        <input
-          type="hidden"
-          name="url"
-          value={fileUrl}
-          ref={register({ required: true })}
-        ></input>
-        {errors.url && <span>ID Card is required</span>}
-        <input type="submit" disabled={loading} />
+          {registration_type !== "" && registration_type !== "Self" && (
+            <Fragment>
+              <Label>Number of Tickets *</Label>
+              <Input
+                name="number_of_tickets"
+                ref={register({ required: true })}
+              />
+              {errors.number_of_tickets && (
+                <ErrorBox>Number of Tickets are required</ErrorBox>
+              )}
+            </Fragment>
+          )}
+          <Label>Upload ID Card *</Label>
+          <FileButton
+            type="file"
+            id="id_card"
+            name="id_card"
+            accept="image/*"
+            required
+            disabled={loading !== 0 && loading !== 100}
+            fullWidth
+            onChange={(e) => handleUploadFile(e)}
+          />
+          <ProgressBar max="100" value={loading} />
+          <input
+            type="hidden"
+            name="id_url"
+            value={fileUrl}
+            ref={register({ required: true })}
+            accept="image/x-png,image/jpeg"
+          />
+          {errors.id_url && <ErrorBox>ID Card is required</ErrorBox>}
+          <InputButton fullWidth type="submit" value="Preview" />
+        </Container>
       </form>
-    </div>
+      <ToastContainer />
+    </Container>
   );
 };
 
